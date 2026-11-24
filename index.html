@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14432b">
+<title>ศูนย์รายงาน · สาขาบริษัท</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --deep: #14432b; --g: #1a7a3c; --gl: #e8f5ee; --gm: #b8dfc8; --bg: #eef3ef; --ink: #17261c; --muted: #4b6b55; --red: #b3261e; --r: 14px; --safe-b: env(safe-area-inset-bottom, 0px); }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 Sarabun, 'Noto Sans Thai', sans-serif; -webkit-text-size-adjust: 100%; }
+button, input, select { font: inherit; }
+.top { position: sticky; top: 0; z-index: 5; background: var(--deep); color: #fff; padding: 12px 14px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; gap: 10px; align-items: center; }
+.top .t { flex: 1; } .top b { display: block; font-size: 18px; } .top small { opacity: .8; }
+.top button { background: rgba(255,255,255,.15); color: #fff; border: 0; border-radius: 10px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
+.top a.home { color: #fff; text-decoration: none; font-size: 20px; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 14px 12px calc(30px + var(--safe-b)); }
+.card { background: #fff; border-radius: var(--r); padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+.card h2 { font-size: 17px; margin: 0 0 10px; color: var(--deep); }
+label.f { display: block; font-size: 13px; color: var(--muted); font-weight: 700; margin: 8px 0 4px; }
+input[type=date], input[type=text], input[type=password], select { width: 100%; min-height: 46px; border: 1.5px solid #cfe0d4; border-radius: 12px; padding: 8px 12px; background: #fff; color: var(--ink); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.chip { border: 1.5px solid #cfe0d4; background: #fff; color: var(--deep); border-radius: 99px; padding: 6px 12px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.chip.on { background: var(--g); border-color: var(--g); color: #fff; }
+.rpts { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.rpt { text-align: left; display: flex; gap: 12px; align-items: flex-start; background: #fff; border: 1.5px solid #dbe8df; border-radius: var(--r); padding: 12px; cursor: pointer; color: var(--ink); }
+.rpt:hover { border-color: var(--g); }
+.rpt .ic { font-size: 26px; line-height: 1; }
+.rpt b { display: block; font-size: 16px; color: var(--deep); }
+.rpt small { color: var(--muted); font-size: 13px; }
+.grp { font-size: 13px; font-weight: 800; color: var(--muted); letter-spacing: .04em; margin: 14px 2px 8px; }
+.btn { border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 800; cursor: pointer; background: var(--g); color: #fff; width: 100%; min-height: 48px; }
+.btn.sec { background: var(--gl); color: var(--deep); }
+.hint { color: var(--muted); font-size: 14px; }
+.err { color: var(--red); font-weight: 700; }
+.login { max-width: 400px; margin: 8vh auto 0; }
+.pin { letter-spacing: .5em; text-align: center; font-size: 22px; }
+#toast { position: fixed; left: 50%; bottom: calc(20px + var(--safe-b)); transform: translateX(-50%); background: var(--deep); color: #fff; padding: 10px 16px; border-radius: 12px; font-weight: 700; z-index: 20000; max-width: 92vw; opacity: 0; transition: opacity .2s; pointer-events: none; }
+#toast.show { opacity: 1; } #toast.err { background: var(--red); }
+#busy { position: fixed; inset: 0; background: rgba(10,30,18,.35); z-index: 15000; display: none; align-items: center; justify-content: center; }
+#busy div { background: #fff; padding: 16px 20px; border-radius: 14px; font-weight: 700; }
+</style>
+<style>
+/* ---------- ใบพิมพ์ (PrintKit) ---------- */
+#pk-ov { position: fixed; inset: 0; z-index: 9999; background: #dfe6e2; display: flex; flex-direction: column; }
+.pk-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 12px; background: #14432b; color: #fff; padding-top: max(10px, env(safe-area-inset-top)); }
+.pk-bar b { font-size: 16px; flex: 1 1 auto; }
+#pk-ov .pk-bar select { font: 600 15px Sarabun, sans-serif; padding: 8px 10px; border-radius: 10px; border: 0; max-width: 100%; min-height: 0; color: #1b2b22; -webkit-text-fill-color: #1b2b22; background: #fff; flex: 1 1 180px; }
+#pk-ov .pk-bar button { min-height: 0; }
+.pk-bar button { font: 700 15px Sarabun, sans-serif; border: 0; border-radius: 10px; padding: 9px 16px; cursor: pointer; }
+.pk-go { background: #f5c542; color: #3b2c00; }
+.pk-xl { background: #e8f5ee; color: #145f2f; }
+.pk-pb { height: 0; break-after: page; page-break-after: always; }
+.pk-sheet .pk-pb { border-top: 2px dashed #9bbfa8; margin: 22px -12mm; }
+.pk-doc.tall td { padding-top: 7px; padding-bottom: 7px; }
+.pk-x { background: rgba(255,255,255,.15); color: #fff; }
+.pk-scroll { flex: 1; overflow: auto; padding: 14px 12px 30px; -webkit-overflow-scrolling: touch; }
+.pk-sheet { background: #fff; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 12mm; box-shadow: 0 4px 22px rgba(0,0,0,.18); }
+.pk-msg { text-align: center; color: #4b5b52; font: 600 13px Sarabun, sans-serif; margin: 0 0 10px; }
+#pk-print { display: none; }
+.pk-doc { font-family: Sarabun, 'TH Sarabun New', sans-serif; color: #000; font-size: 12.5px; line-height: 1.35; }
+.pk-doc .pk-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 8px; }
+.pk-doc h1 { font-size: 20px; margin: 0; font-weight: 800; }
+.pk-doc .pk-sub { font-size: 12px; color: #333; }
+.pk-doc .pk-docno { text-align: right; font-size: 12px; }
+.pk-doc .pk-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 18px; margin-bottom: 8px; }
+.pk-doc .pk-meta div { display: flex; gap: 6px; }
+.pk-doc .pk-meta span { color: #444; min-width: 92px; }
+.pk-doc table { width: 100%; border-collapse: collapse; }
+.pk-doc th, .pk-doc td { border: 1px solid #000; padding: 3px 5px; vertical-align: top; }
+.pk-doc th { background: #eee; font-weight: 700; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pk-doc td.n, .pk-doc th.n { text-align: center; white-space: nowrap; }
+.pk-doc td.d { text-align: center; white-space: nowrap; }
+.pk-doc td.c { text-align: center; white-space: nowrap; }
+.pk-doc td.code { white-space: nowrap; }
+.pk-doc td.blank { min-width: 60px; }
+.pk-doc tr.hl td { background: #f2f2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pk-doc tfoot td { font-weight: 800; background: #f7f7f7; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pk-doc thead { display: table-header-group; }
+.pk-doc tr { break-inside: avoid; page-break-inside: avoid; }
+.pk-doc .pk-sum { margin: 8px 0 0; font-size: 12.5px; }
+.pk-doc .pk-note { margin-top: 8px; border: 1px solid #000; padding: 4px 6px; min-height: 42px; }
+.pk-doc .pk-sign { display: grid; gap: 14px; margin-top: 26px; break-inside: avoid; page-break-inside: avoid; }
+.pk-doc .pk-sign div { text-align: center; font-size: 12.5px; }
+.pk-doc .pk-sign .ln { border-bottom: 1px dotted #000; height: 26px; margin: 0 6px 4px; }
+.pk-doc .pk-foot { margin-top: 14px; font-size: 10.5px; color: #555; display: flex; justify-content: space-between; }
+.pk-doc .pk-empty { text-align: center; padding: 18px; color: #555; }
+
+.pk-doc .pk-tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:0 0 10px}
+.pk-doc .pk-tiles div{border:1px solid var(--pgm);border-radius:6px;padding:4px 8px;text-align:center}
+.pk-doc .pk-tiles span{display:block;font-size:10px;color:#4b6b55}
+.pk-doc .pk-tiles b{font-size:12.5px;color:var(--pg)}
+.pk-doc .pk-tiles .bad{background:#fdecea;border-color:#f0b9b2;-webkit-print-color-adjust:exact;print-color-adjust:exact}.pk-doc .pk-tiles .bad b{color:#a93226}
+.pk-doc .pk-tiles .warn{background:#fff7e0;border-color:#f3d98a;-webkit-print-color-adjust:exact;print-color-adjust:exact}.pk-doc .pk-tiles .warn b{color:#8a6200}
+.pk-doc h2.pk-sec{font-size:14px;margin:12px 0 5px;color:var(--pg);border-left:4px solid var(--pg2);padding-left:7px}
+.pk-doc h2.pk-sec.bad{color:#a93226;border-color:#c0392b;break-before:auto}
+.pk-doc tr.grp td{background:#eef6f1;font-weight:800;color:var(--pg);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+.pk-doc tr.tot td{font-weight:800;background:var(--pgl);color:var(--pg);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pk-doc h2.pk-sec.bad{break-before:auto}
+.pk-doc .pk-sub2{display:none;font-size:11px;color:#4b6b55;margin:14px 0 4px;border-top:1px dashed var(--pgm);padding-top:8px}
+@media print{.pk-doc .pk-sub2{display:block;break-before:page;page-break-before:always;border:0;padding:0;margin-top:0}}
+@media screen{.pk-doc .pk-sub2{display:block}}
+
+/* ธีมเขียว */
+.pk-doc { --pg: #145f2f; --pg2: #1a7a3c; --pgl: #e8f5ee; --pgm: #b8dfc8; }
+.pk-doc .pk-head { border-bottom: 3px solid var(--pg2); }
+.pk-doc .pk-kick { display: block; letter-spacing: .16em; font-size: 9.5px; color: var(--pg2); font-weight: 700; }
+.pk-doc h1 { color: var(--pg); }
+.pk-doc .pk-sub { color: var(--pg2); font-weight: 600; }
+.pk-doc .pk-meta { gap: 6px; grid-template-columns: repeat(3, 1fr); }
+.pk-doc .pk-meta div { display: block; background: var(--pgl); border-left: 3px solid var(--pg2); border-radius: 4px; padding: 3px 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pk-doc .pk-meta span { display: block; font-size: 10px; min-width: 0; color: #4b6b55; }
+.pk-doc th { background: var(--pg2); color: #fff; border-color: var(--pg2); }
+.pk-doc td { border-color: var(--pgm); }
+.pk-doc tbody tr:nth-child(even) td { background: #f6fbf8; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pk-doc tr.hl td, .pk-doc tbody tr.hl:nth-child(even) td { background: #fdecea; }
+.pk-doc tfoot td { background: var(--pgl); color: var(--pg); border-color: var(--pgm); }
+.pk-doc .pk-note { border: 1px solid var(--pgm); border-left: 3px solid var(--pg2); border-radius: 4px; }
+.pk-doc .pk-note b { color: var(--pg); }
+.pk-doc .pk-sign b { color: var(--pg); }
+.pk-doc .pk-foot { border-top: 1px solid var(--pgm); padding-top: 4px; }
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html, body { background: #fff !important; }
+  body.pk-printing > *:not(#pk-print) { display: none !important; }
+  body.pk-printing #pk-print { display: block !important; }
+}
+</style>
+<script>
+/* PrintKit — หน้าตัวอย่างใบพิมพ์ A4 + สั่งพิมพ์ (ใช้ร่วมกันทั้ง 3 แอป) */
+window.PrintKit = (function () {
+  var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] }) }
+  var pad = function (n) { return (n < 10 ? '0' : '') + n }
+  // ช่องที่เป็นวันที่/เวลา → จัดกึ่งกลาง (เช่น 23 พ.ย. 2026 · 23/11/2026 · 2026-11-23 · 20:15)
+  var DATE_RE = /^(\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}(\/\d{2,4})?|\d{1,2} [\u0E00-\u0E7F.]{2,6} \d{2,4})( \d{1,2}:\d{2}(:\d{2})?)?$|^\d{1,2}:\d{2}$/
+  var isDate = function (v) { return typeof v === 'string' && DATE_RE.test(v.trim()) }
+  function stamp() { var d = new Date(); return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) }
+  // doc = { title, sub, docNoLabel, meta:[[label,value]], cols:[{h, cls, w}], rows:[{cells:[], hl}], foot:[cells]|null, summary:html, noteBox:label|null, sign:[labels], empty }
+  /* ---------- ส่งออก Excel แบบฟอร์ม (หน้าตาเดียวกับใบพิมพ์ · ธีมเขียว) ----------
+     doc เดียว = 1 ชีต · หลายใบ (array) = หลายชีตในไฟล์เดียว · หัวตารางพิมพ์ซ้ำทุกหน้า · A4 พอดีความกว้าง */
+  var XL = (function () {
+    var CRC = (function () { var t = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0 } return t })()
+    function crc(b) { var c = 0xffffffff; for (var i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0 }
+    function zip(files) { // เก็บแบบไม่บีบอัด (Excel เปิดได้ปกติ)
+      var enc = new TextEncoder(), parts = [], cen = [], off = 0
+      var u16 = function (v) { return [v & 255, (v >>> 8) & 255] }, u32 = function (v) { return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255] }
+      files.forEach(function (f) {
+        var name = enc.encode(f.name), data = enc.encode(f.data), c = crc(data)
+        var lh = [].concat([0x50, 0x4b, 3, 4], u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(c), u32(data.length), u32(data.length), u16(name.length), u16(0))
+        parts.push(new Uint8Array(lh), name, data)
+        cen.push(new Uint8Array([].concat([0x50, 0x4b, 1, 2], u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(c), u32(data.length), u32(data.length), u16(name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(off))), name)
+        off += lh.length + name.length + data.length
+      })
+      var cs = cen.reduce(function (a, x) { return a + x.length }, 0)
+      var n = files.length
+      return new Blob(parts.concat(cen, [new Uint8Array([].concat([0x50, 0x4b, 5, 6], u16(0), u16(0), u16(n), u16(n), u32(cs), u32(off), u16(0)))]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    }
+    var xe = function (v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] }).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '') }
+    var colL = function (i) { var s = ''; i++; while (i > 0) { var m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26) } return s }
+    var plain = function (h) { return String(h == null ? '' : h).replace(/<br\s*\/?>/gi, '\n').replace(/<\/(div|p|li)>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\n{3,}/g, '\n\n').trim() }
+    // ---------- สไตล์ (สร้างตามที่ใช้จริง) ----------
+    function Styles() {
+      var fonts = ['<font><sz val="10"/><name val="Tahoma"/></font>'], fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>'], borders = ['<border/>'], xfs = ['<xf fontId="0" fillId="0" borderId="0"/>'], key = {}
+      var idx = function (arr, x) { var i = arr.indexOf(x); if (i < 0) { arr.push(x); i = arr.length - 1 } return i }
+      this.get = function (o) {
+        var k = JSON.stringify(o); if (key.hasOwnProperty(k)) return key[k]
+        var f = idx(fonts, '<font>' + (o.b ? '<b/>' : '') + (o.i ? '<i/>' : '') + '<sz val="' + (o.sz || 10) + '"/><color rgb="FF' + (o.c || '000000') + '"/><name val="Tahoma"/></font>')
+        var fl = o.bg ? idx(fills, '<fill><patternFill patternType="solid"><fgColor rgb="FF' + o.bg + '"/><bgColor indexed="64"/></patternFill></fill>') : 0
+        var bd = 0
+        if (o.bd || o.bl || o.bb || o.bt) {
+          var side = function (n, on, st, col) { return on ? '<' + n + ' style="' + st + '"><color rgb="FF' + col + '"/></' + n + '>' : '<' + n + '/>' }
+          var bc = o.bc || 'B8DFC8'
+          bd = idx(borders, '<border>' + side('left', o.bd || o.bl, o.bl ? 'thick' : 'thin', o.bl ? '1A7A3C' : bc) + side('right', o.bd, 'thin', bc) + side('top', o.bd || o.bt, o.bt ? 'medium' : 'thin', o.bt ? '1A7A3C' : bc) + side('bottom', o.bd || o.bb, o.bb ? (o.bbs || 'medium') : 'thin', o.bb ? (o.bbc || '1A7A3C') : bc) + '<diagonal/></border>')
+        }
+        var al = '<alignment' + (o.h ? ' horizontal="' + o.h + '"' : '') + ' vertical="' + (o.v || 'center') + '"' + (o.w ? ' wrapText="1"' : '') + '/>'
+        xfs.push('<xf numFmtId="' + (o.num ? 164 : 0) + '" fontId="' + f + '" fillId="' + fl + '" borderId="' + bd + '" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"' + (o.num ? ' applyNumberFormat="1"' : '') + '>' + al + '</xf>')
+        return (key[k] = xfs.length - 1)
+      }
+      this.xml = function () {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.###;-#,##0.###;0"/></numFmts>' +
+          '<fonts count="' + fonts.length + '">' + fonts.join('') + '</fonts><fills count="' + fills.length + '">' + fills.join('') + '</fills><borders count="' + borders.length + '">' + borders.join('') + '</borders>' +
+          '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="' + xfs.length + '">' + xfs.join('') + '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'
+      }
+    }
+    var G = '145F2F', G2 = '1A7A3C', GL = 'E8F5EE', GM = 'B8DFC8'
+    // ---------- 1 doc → 1 ชีต ----------
+    function sheetOf(doc, ST) {
+      var cols = doc.cols || [], n = Math.max(cols.length, 3), rows = [], merges = [], heights = {}, R = 0, titleRow = 0
+      var total = 100, fixed = 0, free = 0
+      cols.forEach(function (c) { var p = parseFloat(c.w); if (p) fixed += p; else free++ })
+      var widths = cols.map(function (c) { var p = parseFloat(c.w); var w = p ? p : Math.max(8, (100 - fixed) / Math.max(free, 1)); return Math.max(5, Math.round(w * total / 100 * 1.05)) })
+      while (widths.length < n) widths.push(14)
+      var put = function (r, c, v, s, kind) { (rows[r] || (rows[r] = []))[c] = { v: v, s: s, k: kind } }
+      var span = function (r, c1, c2, v, s, rh) { // merged cell (ใส่สไตล์ทุกช่องให้เส้นขอบครบ)
+        for (var c = c1; c <= c2; c++) put(r, c, c === c1 ? v : '', s)
+        if (rh) for (var k = 1; k < rh; k++) for (var c3 = c1; c3 <= c2; c3++) put(r + k, c3, '', s)
+        if (c2 > c1 || rh > 1) merges.push(colL(c1) + (r + 1) + ':' + colL(c2) + (r + (rh || 1)))
+      }
+      var groups = function (k) { // แบ่งคอลัมน์เป็น k กลุ่มให้ความกว้างใกล้กัน
+        var tot = widths.slice(0, n).reduce(function (a, w) { return a + w }, 0), out = [], a = 0, acc = 0
+        for (var i = 0; i < n && out.length < k - 1; i++) { acc += widths[i]; if (acc >= tot * (out.length + 1) / k && n - i - 1 >= k - out.length - 1) { out.push([a, i]); a = i + 1 } }
+        out.push([a, n - 1])
+        while (out.length < k) out.push([n - 1, n - 1])
+        return out
+      }
+      // หัวกระดาษ
+      if (doc.kicker) span(R, 0, n - 3 >= 0 ? Math.max(0, n - 3) : 0, doc.kicker, ST.get({ sz: 8, b: 1, c: G2 }))
+      span(R, Math.max(1, n - 2), n - 1, (doc.docNoLabel || 'เลขที่เอกสาร') + ' ...................', ST.get({ sz: 9, h: 'right' }))
+      R++
+      span(R, 0, n - 1, doc.title || '', ST.get({ sz: 16, b: 1, c: G })); heights[R] = 26; R++
+      if (doc.sub) { span(R, 0, n - 1, doc.sub, ST.get({ sz: 10, b: 1, c: G2, bb: 1, bbs: 'medium' })); R++ } else { for (var c0 = 0; c0 < n; c0++) put(R - 1, c0, rows[R - 1][c0] ? rows[R - 1][c0].v : '', ST.get({ sz: 16, b: 1, c: G, bb: 1 })) }
+      R++
+      // ข้อมูลหัวเอกสาร (meta) — แถวละ 3 หรือ 4 ช่อง
+      if (doc.meta && doc.meta.length) {
+        var per = doc.meta.length % 4 === 0 ? 4 : 3, gs = groups(Math.min(per, n))
+        for (var i = 0; i < doc.meta.length; i += gs.length) {
+          doc.meta.slice(i, i + gs.length).forEach(function (m, j) {
+            span(R, gs[j][0], gs[j][1], m[0], ST.get({ sz: 8, c: '4B6B55', bg: GL, bl: 1 }))
+            span(R + 1, gs[j][0], gs[j][1], m[1], ST.get({ sz: 10, b: 1, bg: GL, bl: 1, w: 1 }))
+          })
+          R += 2
+        }
+        R++
+      }
+      // ตาราง
+      titleRow = R
+      cols.forEach(function (c, i) { put(R, i, c.h, ST.get({ b: 1, c: 'FFFFFF', bg: G2, bd: 1, bc: G2, h: 'center', w: 1 })) })
+      heights[R] = 30; R++
+      var tall = /\btall\b/.test(doc.cls || '')
+      var cellStyle = function (cls, even, hl) {
+        var bg = hl ? 'FDECEA' : even ? 'F6FBF8' : null, o = { bd: 1, w: 1, v: 'top' }
+        if (bg) o.bg = bg
+        if (cls === 'n') { o.h = 'center'; o.num = 1 } else if (cls === 'c' || cls === 'd') o.h = 'center'
+        if (tall) o.v = 'center'
+        return ST.get(o)
+      }
+      if (!doc.rows || !doc.rows.length) { span(R, 0, cols.length - 1, doc.empty || 'ไม่มีรายการ', ST.get({ bd: 1, h: 'center', c: '555555' })); R++ }
+      var even = false
+      ;(doc.rows || []).forEach(function (r) {
+        if (r.sec) { span(R, 0, cols.length - 1, r.sec, ST.get({ b: 1, c: G, bg: GL, bd: 1, w: 1 })); heights[R] = 20; R++; even = false; return }
+        even = !even
+        r.cells.forEach(function (v, i) {
+          var cls = cols[i] && cols[i].cls
+          var isNum = cls === 'n' && (typeof v === 'number' || /^-?\d[\d,]*(\.\d+)?$/.test(String(v).trim()))
+          put(R, i, isNum ? Number(String(v).replace(/,/g, '')) : v, cellStyle(cls || (isDate(v) ? 'd' : ''), !even, r.hl), isNum ? 'n' : 's')
+        })
+        for (var k = r.cells.length; k < cols.length; k++) put(R, k, '', cellStyle(cols[k].cls, !even, r.hl))
+        if (tall) heights[R] = 24
+        R++
+      })
+      if (doc.foot && doc.rows && doc.rows.length) {
+        doc.foot.forEach(function (v, i) {
+          var cls = cols[i] && cols[i].cls, isNum = cls === 'n' && /^-?\d[\d,]*(\.\d+)?$/.test(String(v).trim())
+          put(R, i, isNum ? Number(String(v).replace(/,/g, '')) : v, ST.get({ b: 1, c: G, bg: GL, bd: 1, h: cls === 'n' || cls === 'c' || isDate(v) ? 'center' : undefined, num: isNum ? 1 : undefined }), isNum ? 'n' : 's')
+        })
+        R++
+      }
+      R++
+      if (doc.summary) { var t = plain(doc.summary); var nl = t.split('\n').length; span(R, 0, n - 1, t, ST.get({ w: 1, v: 'top' })); heights[R] = Math.min(400, 15 * nl + 4); R += 2 }
+      if (doc.noteBox) { span(R, 0, n - 1, doc.noteBox, ST.get({ b: 1, c: G, bl: 1, bd: 1, bc: GM, v: 'top' }), 3); R += 4 }
+      if (doc.sign && doc.sign.length) {
+        R++
+        var sg = groups(Math.min(doc.sign.length, n))
+        doc.sign.forEach(function (s, j) {
+          span(R, sg[j][0], sg[j][1], '', ST.get({ bb: 1, bbs: 'dotted', bbc: '000000' }))
+          span(R + 1, sg[j][0], sg[j][1], '(.......................................)', ST.get({ h: 'center' }))
+          span(R + 2, sg[j][0], sg[j][1], s, ST.get({ h: 'center', b: 1, c: G }))
+          span(R + 3, sg[j][0], sg[j][1], 'วันที่ ....../....../......', ST.get({ h: 'center' }))
+        })
+        heights[R] = 30
+        R += 5
+      }
+      span(R, 0, Math.max(0, Math.floor(n / 2) - 1), 'พิมพ์เมื่อ ' + stampNow(), ST.get({ sz: 8, c: '555555', bt: 0 }))
+      if (doc.footRight) span(R, Math.floor(n / 2), n - 1, doc.footRight, ST.get({ sz: 8, c: '555555', h: 'right' }))
+      // XML
+      var sd = rows.map(function (r, ri) {
+        if (!r) return ''
+        var cells = ''
+        for (var c = 0; c < r.length; c++) {
+          var x = r[c]; if (!x) continue
+          var ref = colL(c) + (ri + 1)
+          if (x.k === 'n') cells += '<c r="' + ref + '" s="' + x.s + '"><v>' + x.v + '</v></c>'
+          else if (x.v === '' || x.v == null) cells += '<c r="' + ref + '" s="' + x.s + '"/>'
+          else cells += '<c r="' + ref + '" s="' + x.s + '" t="inlineStr"><is><t xml:space="preserve">' + xe(x.v) + '</t></is></c>'
+        }
+        return '<row r="' + (ri + 1) + '"' + (heights[ri] ? ' ht="' + heights[ri] + '" customHeight="1"' : '') + '>' + cells + '</row>'
+      }).join('')
+      var xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+        '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0"/></sheetViews><sheetFormatPr defaultRowHeight="16"/>' +
+        '<cols>' + widths.map(function (w, i) { return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>' }).join('') + '</cols>' +
+        '<sheetData>' + sd + '</sheetData>' +
+        (merges.length ? '<mergeCells count="' + merges.length + '">' + merges.map(function (m) { return '<mergeCell ref="' + m + '"/>' }).join('') + '</mergeCells>' : '') +
+        '<printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.45" bottom="0.5" header="0.2" footer="0.25"/>' +
+        '<pageSetup paperSize="9" orientation="portrait" fitToWidth="1" fitToHeight="0"/><headerFooter><oddFooter>&amp;R&amp;8หน้า &amp;P / &amp;N</oddFooter></headerFooter></worksheet>'
+      return { xml: xml, titleRow: titleRow + 1, hasTable: cols.length > 0 }
+    }
+    function stampNow() { var d = new Date(), p = function (x) { return (x < 10 ? '0' : '') + x }; return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) }
+    function build(docs) {
+      docs = (Array.isArray(docs) ? docs : [docs]).filter(function (d) { return d && !d.raw })
+      var ST = new Styles(), used = {}, sheets = docs.map(function (d, i) {
+        var nm = String(d.sheet || d.title || ('ใบที่ ' + (i + 1))).replace(/[\\/?*[\]:]/g, '-').slice(0, 28) || ('ใบที่ ' + (i + 1))
+        var base = nm, k = 2; while (used[nm]) nm = base.slice(0, 25) + ' (' + (k++) + ')'
+        used[nm] = 1
+        var s = sheetOf(d, ST); s.name = nm; return s
+      })
+      var R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships', X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      var dn = sheets.map(function (s, i) { return s.hasTable ? '<definedName name="_xlNm.Print_Titles" localSheetId="' + i + '">\'' + xe(s.name).replace(/'/g, "''") + '\'!$' + s.titleRow + ':$' + s.titleRow + '</definedName>' : '' }).join('')
+      var files = [
+        { name: '[Content_Types].xml', data: X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' + sheets.map(function (s, i) { return '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' }).join('') + '</Types>' },
+        { name: '_rels/.rels', data: X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + R + '/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+        { name: 'xl/workbook.xml', data: X + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + R + '"><sheets>' + sheets.map(function (s, i) { return '<sheet name="' + xe(s.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>' }).join('') + '</sheets>' + (dn ? '<definedNames>' + dn + '</definedNames>' : '') + '</workbook>' },
+        { name: 'xl/_rels/workbook.xml.rels', data: X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + sheets.map(function (s, i) { return '<Relationship Id="rId' + (i + 1) + '" Type="' + R + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>' }).join('') + '<Relationship Id="rId' + (sheets.length + 1) + '" Type="' + R + '/styles" Target="styles.xml"/></Relationships>' },
+        { name: 'xl/styles.xml', data: ST.xml() }
+      ].concat(sheets.map(function (s, i) { return { name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: s.xml } }))
+      return zip(files)
+    }
+    function save(blob, name) {
+      var a = document.createElement('a'), url = URL.createObjectURL(blob)
+      a.href = url; a.download = name; document.body.appendChild(a); a.click()
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove() }, 4000)
+    }
+    return { build: build, save: save }
+  })()
+  function xlName(cfg, docs) {
+    var d = new Date(), p = function (x) { return (x < 10 ? '0' : '') + x }
+    var first = Array.isArray(docs) ? docs[0] : docs
+    var base = String((first && first.title) || cfg.name || 'แบบฟอร์ม').replace(/[\\/:*?"<>|]/g, '-').trim()
+    return base + '_' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()) + '.xlsx'
+  }
+  function exportXlsx(cfg, doc) {
+    var x = doc && doc.raw ? doc.x : doc // ใบที่ทำเป็น HTML เอง: ใช้ข้อมูลแบบตาราง (doc.x) แทน
+    if (!x || (Array.isArray(x) && !x.length)) { alert('ใบนี้ยังส่งออก Excel ไม่ได้ — ใช้ "สั่งพิมพ์" แทน'); return }
+    XL.save(XL.build(x), xlName(cfg, x))
+  }
+  function render(doc) {
+    if (Array.isArray(doc)) return doc.map(render).join('<div class="pk-pb"></div>') // หลายใบ = ขึ้นหน้าใหม่ทุกใบ
+    if (doc && doc.raw) return doc.raw
+    var h = '<div class="pk-doc' + (doc.cls ? ' ' + esc(doc.cls) : '') + '">'
+    h += '<div class="pk-head"><div>' + (doc.kicker ? '<small class="pk-kick">' + esc(doc.kicker) + '</small>' : '') + '<h1>' + esc(doc.title) + '</h1>' + (doc.sub ? '<div class="pk-sub">' + esc(doc.sub) + '</div>' : '') + '</div>' +
+      '<div class="pk-docno">' + esc(doc.docNoLabel || 'เลขที่เอกสาร') + ' ......................</div></div>'
+    if (doc.meta && doc.meta.length) h += '<div class="pk-meta" style="grid-template-columns:repeat(' + (doc.meta.length % 4 === 0 ? 4 : 3) + ',1fr)">' + doc.meta.map(function (m) { return '<div><span>' + esc(m[0]) + '</span><b>' + esc(m[1]) + '</b></div>' }).join('') + '</div>'
+    h += '<table><colgroup>' + doc.cols.map(function (c) { return '<col' + (c.w ? ' style="width:' + c.w + '"' : '') + '>' }).join('') + '</colgroup>'
+    h += '<thead><tr>' + doc.cols.map(function (c) { return '<th' + (c.cls === 'n' ? ' class="n"' : '') + '>' + esc(c.h) + '</th>' }).join('') + '</tr></thead><tbody>'
+    if (!doc.rows.length) h += '<tr><td colspan="' + doc.cols.length + '" class="pk-empty">' + esc(doc.empty || 'ไม่มีรายการ') + '</td></tr>'
+    doc.rows.forEach(function (r) {
+      if (r.sec) { h += '<tr class="sec"><td colspan="' + doc.cols.length + '">' + esc(r.sec) + '</td></tr>'; return }
+      h += '<tr' + (r.hl ? ' class="hl"' : '') + '>' + r.cells.map(function (v, i) { var c = doc.cols[i].cls || (isDate(v) ? 'd' : ''); return '<td' + (c ? ' class="' + c + '"' : '') + '>' + esc(v) + '</td>' }).join('') + '</tr>'
+    })
+    h += '</tbody>'
+    if (doc.foot && doc.rows.length) h += '<tfoot><tr>' + doc.foot.map(function (v, i) { var c = doc.cols[i] && doc.cols[i].cls; return '<td' + (c ? ' class="' + c + '"' : '') + '>' + esc(v) + '</td>' }).join('') + '</tr></tfoot>'
+    h += '</table>'
+    if (doc.summary) h += '<div class="pk-sum">' + doc.summary + '</div>'
+    if (doc.noteBox) h += '<div class="pk-note"><b>' + esc(doc.noteBox) + '</b></div>'
+    if (doc.sign && doc.sign.length) {
+      h += '<div class="pk-sign" style="grid-template-columns:repeat(' + doc.sign.length + ',1fr)">' + doc.sign.map(function (s) {
+        return '<div><div class="ln"></div>(.......................................)<br><b>' + esc(s) + '</b><br>วันที่ ....../....../......</div>'
+      }).join('') + '</div>'
+    }
+    h += '<div class="pk-foot"><span>พิมพ์เมื่อ ' + esc(stamp()) + '</span><span>' + esc(doc.footRight || '') + '</span></div>'
+    return h + '</div>'
+  }
+  var ov = null
+  function close() {
+    if (ov) { ov.remove(); ov = null }
+    document.removeEventListener('keydown', onKey, true)
+  }
+  function onKey(e) { if (e.key === 'Escape') { e.stopPropagation(); close() } }
+  function fit() {
+    if (!ov) return
+    var sc = ov.querySelector('.pk-scroll'), sh = ov.querySelector('.pk-sheet')
+    var w = sc.clientWidth - 24, full = 794 // 210mm ที่ 96dpi
+    sh.style.zoom = w < full ? String(Math.max(0.3, w / full)) : ''
+  }
+  // cfg = { name, options:[[value,label]], value, build(value) -> doc }
+  function open(cfg) {
+    close()
+    var cur = cfg.value || (cfg.options && cfg.options[0] ? cfg.options[0][0] : '')
+    ov = document.createElement('div')
+    ov.id = 'pk-ov'
+    ov.innerHTML = '<div class="pk-bar"><b>🖨️ ' + esc(cfg.name || 'พิมพ์') + '</b>' +
+      (cfg.options && cfg.options.length > 1 ? '<select class="pk-opt">' + cfg.options.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === cur ? ' selected' : '') + '>' + esc(o[1]) + '</option>' }).join('') + '</select>' : '') +
+      '<button type="button" class="pk-xl">📗 Excel</button><button type="button" class="pk-go">🖨️ สั่งพิมพ์</button><button type="button" class="pk-x">ปิด</button></div>' +
+      '<div class="pk-scroll"><p class="pk-msg">ตัวอย่างใบพิมพ์ (A4) — ตรวจแล้วกด "สั่งพิมพ์" หรือ "📗 Excel" เก็บเป็นไฟล์ · บนมือถือเลือกเครื่องพิมพ์ หรือบันทึกเป็น PDF ได้</p><div class="pk-sheet"></div></div>'
+    document.body.appendChild(ov)
+    var draw = function () { ov.querySelector('.pk-sheet').innerHTML = render(cfg.build(cur)); fit() }
+    var sel = ov.querySelector('.pk-opt')
+    if (sel) sel.addEventListener('change', function () { cur = sel.value; draw() })
+    ov.querySelector('.pk-x').addEventListener('click', close)
+    ov.querySelector('.pk-xl').addEventListener('click', function () { exportXlsx(cfg, cfg.build(cur)) })
+    ov.querySelector('.pk-go').addEventListener('click', function () { print(render(cfg.build(cur))) })
+    document.addEventListener('keydown', onKey, true)
+    window.addEventListener('resize', fit)
+    draw()
+  }
+  function print(html) {
+    var box = document.getElementById('pk-print')
+    if (!box) { box = document.createElement('div'); box.id = 'pk-print'; document.body.appendChild(box) }
+    box.innerHTML = html
+    document.body.classList.add('pk-printing')
+    var done = function () { document.body.classList.remove('pk-printing'); window.removeEventListener('afterprint', done) }
+    window.addEventListener('afterprint', done)
+    try { window.print() } catch (e) { done() }
+  }
+  return { open: open, close: close, render: render, print: print, xlsx: function (doc) { return XL.build(doc) } }
+})()
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<div id="busy"><div>⏳ กำลังดึงข้อมูลจากชีต…</div></div>
+<script>
+/* ตั้งค่า — สาขา / PIN / ลิงก์ชีตกลาง (ชุดเดียวกับแอปอื่น) */
+window.APP_CONFIG = {
+  "SYNC_URL": "https://script.google.com/macros/s/AKfycbwh61f39okKUMOiZYpbgBb0iKws6CJUnzuM2usHoIGxUGbNml35yA5iZj16ssUZ2WP_/exec",
+  "BRANCHES": [
+    {
+      "id": "onnut",
+      "name": "อ่อนนุช",
+      "pin": "1111"
+    },
+    {
+      "id": "ramkhamhaeng",
+      "name": "รามคำแหง",
+      "pin": "1234"
+    },
+    {
+      "id": "rama4",
+      "name": "พระราม 4",
+      "pin": "0000"
+    },
+    {
+      "id": "official-onnut",
+      "name": "Official Store Onnut",
+      "pin": "4321"
+    }
+  ]
+}
+</script>
+<script>
+/* =====================================================================
+   ศูนย์รายงาน — ดึงข้อมูลจากชีตกลาง (รวมไฟล์ข้อมูลเก่า) เลือกช่วงวันที่ แล้วพิมพ์ / ส่งออก Excel
+   ไม่แก้ข้อมูลใด ๆ (อ่านอย่างเดียว)
+   ===================================================================== */
+(function () {
+  'use strict'
+  const CFG = window.APP_CONFIG
+  const $ = (q, el) => (el || document).querySelector(q)
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+  const pd = (n) => (n < 10 ? '0' : '') + n
+  const dk = (d) => d.getFullYear() + '-' + pd(d.getMonth() + 1) + '-' + pd(d.getDate())
+  const today = () => dk(new Date())
+  const addD = (k, n) => { const d = new Date(k + 'T00:00:00'); d.setDate(d.getDate() + n); return dk(d) }
+  const dayDiff = (a, b) => Math.round((Date.parse(b + 'T00:00:00') - Date.parse(a + 'T00:00:00')) / 86400000)
+  const MTH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+  const dTH = (k) => { const p = String(k || '').slice(0, 10).split('-'); return p.length === 3 ? Number(p[2]) + ' ' + MTH[Number(p[1]) - 1] + ' ' + p[0] : String(k || '') }
+  const r3 = (x) => Math.round(x * 1000) / 1000
+  const fmt = (n) => (n == null || n === '' || isNaN(n) ? '' : (Math.round(Number(n) * 1000) / 1000).toLocaleString('en-US', { maximumFractionDigits: 3 }))
+  const sg = (n) => (n == null || n === '' ? '' : n > 0 ? '+' + fmt(n) : fmt(n))
+  const K = { session: 'rp_session', state: 'rp_state' }
+  const ls = { get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d } catch (e) { return d } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) { /* ไม่เป็นไร */ } } }
+  let SESSION = (() => { const s = ls.get(K.session, null); return s && s.date === today() && CFG.BRANCHES.some((b) => b.id === s.branchId) ? s : null })()
+  const BR = () => CFG.BRANCHES.find((b) => b.id === (SESSION && SESSION.branchId)) || { name: '' }
+  let ST = Object.assign({ from: addD(today(), -6), to: today() }, ls.get(K.state, {}))
+  function toast(m, t, ms) { const el = $('#toast'); el.textContent = m; el.className = 'show' + (t === 'err' ? ' err' : ''); clearTimeout(toast.t); toast.t = setTimeout(() => { el.className = '' }, ms || 2600) }
+  const busy = (on) => { $('#busy').style.display = on ? 'flex' : 'none' }
+  async function api(action, body) {
+    const res = await fetch(CFG.SYNC_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action: action, branch: BR().name }, body || {})) })
+    const txt = await res.text()
+    let j
+    try { j = JSON.parse(txt) } catch (e) { throw new Error(/<html/i.test(txt) ? 'Apps Script ตอบกลับเป็นหน้าเว็บ — ตรวจการ Deploy' : 'ข้อมูลตอบกลับผิดรูปแบบ') }
+    if (!j.ok) throw new Error(j.message || j.error || 'ไม่สำเร็จ')
+    return j.data || {}
+  }
+  // ---------- ฐานสินค้า + แปลงหน่วย SAP → แพค ----------
+  let PROD = null
+  async function products() { if (!PROD) { const d = await api('getProducts', { ver: '' }); PROD = d.products || {} } return PROD }
+  const nm = (c) => (PROD && PROD[c] ? PROD[c][0] : '') || '(ไม่มีในฐานสินค้า)'
+  const pk = (c) => (PROD && PROD[c] ? PROD[c][1] : '') || ''
+  const kgPer = (p) => { const m = /(\d+(?:\.\d+)?)\s*(kg|g)\b/i.exec(p || ''); if (!m) return null; const v = parseFloat(m[1]); return /kg/i.test(m[2]) ? v : v / 1000 }
+  const pcPer = (p) => { const m = /(\d+)\s*pc/i.exec(p || ''); return m ? Number(m[1]) : null }
+  function packsOf(pack, uom, q) {
+    const p = String(pack || '').trim(), u = String(uom || '').trim().toLowerCase(), pl = p.toLowerCase()
+    if (!u || u === pl) return q
+    if (['kg', 'kgs', 'กก.', 'กิโลกรัม'].indexOf(u) >= 0) { const k = kgPer(p); return k ? q / k : null }
+    if (u === 'g' || u === 'กรัม') { const k = kgPer(p); return k ? q / 1000 / k : null }
+    if (['pce', 'pcs', 'pc', 'ea', 'ชิ้น'].indexOf(u) >= 0) { const n = pcPer(p); return n ? q / n : q }
+    if (/^pack/.test(u) && /^pack/.test(pl)) return q
+    return null
+  }
+  const SAP5 = ['Transfer', 'GR', 'DO', 'GI', 'CN']
+  const common = (extra) => Object.assign({ footRight: 'ศูนย์รายงาน · ' + BR().name }, extra)
+  const metaBase = () => [['สาขา', BR().name], ['ช่วงวันที่', dTH(ST.from) + ' – ' + dTH(ST.to)], ['ผู้พิมพ์', SESSION ? SESSION.user : '']]
+  const sign3 = ['ผู้จัดทำ', 'ผู้ตรวจสอบ', 'ผู้จัดการสาขา']
+
+  /* =========================== รายงาน =========================== */
+  const REPORTS = [
+    { grp: 'นับสต๊อก', id: 'count', ic: '📊', t: 'ผลนับสต๊อก', d: 'ผลนับที่ส่งแล้ว ตามวันที่นับจริง · ทุกรายการ / เฉพาะผลต่าง / สรุปรายวัน', run: rCount },
+    { grp: 'นับสต๊อก', id: 'why', ic: '🔎', t: 'สรุปเหตุผลผลต่าง', d: 'ผลต่างแต่ละรหัส เกิดจากรับเข้า / ตีคืน / GI / CN อะไร — ย้อนหลังได้ทุกรอบนับ', run: rWhy },
+    { grp: 'นับสต๊อก', id: 'adj', ic: '🔧', t: 'ตรวจการปรับสต๊อกของคลัง', d: 'หลังออดิต: เอกสารปรับยอดใน SAP ตรงกับผลนับไหม', run: rAdj },
+    { grp: 'รับเข้า · ตีคืน · สั่ง', id: 'receive', ic: '📥', t: 'รับเข้า', d: 'รายการแยกวัน / สรุปตามรหัส', run: (o) => rEnt('receive', o) },
+    { grp: 'รับเข้า · ตีคืน · สั่ง', id: 'transfer', ic: '🚚', t: 'ตรวจรับของโอนย้าย', d: 'ใบโอน (Transfer) ใน SAP เทียบกับที่รับจริงในแอป รายวัน', run: rTransfer },
+    { grp: 'รับเข้า · ตีคืน · สั่ง', id: 'return', ic: '↩️', t: 'ตีคืน', d: 'รายการ / สรุปตามรหัส · สถานะส่งคืนคลัง', run: (o) => rEnt('return', o) },
+    { grp: 'รับเข้า · ตีคืน · สั่ง', id: 'gi', ic: '⏳', t: 'ตีคืนที่คลังยังไม่ทำ GI', d: 'ส่งคืนคลังแล้วแต่ SAP ยังไม่ตัดสต๊อก · ค้างกี่วัน', run: rGi },
+    { grp: 'รับเข้า · ตีคืน · สั่ง', id: 'order', ic: '🛒', t: 'สั่งสินค้า', d: 'รายการ / สรุปตามรหัส', run: (o) => rEnt('order', o) },
+    { grp: 'อื่น ๆ', id: 'sap', ic: '📋', t: 'ความเคลื่อนไหว SAP', d: 'Transfer / GR / DO / GI / CN / ปรับยอด ตามช่วงวันที่', run: rSap },
+    { grp: 'อื่น ๆ', id: 'expiry', ic: '📅', t: 'ทะเบียนวันหมดอายุ', d: 'ของใกล้หมด / หมดแล้ว (ไม่ขึ้นกับช่วงวันที่)', run: rExpiry },
+    { grp: 'อื่น ๆ', id: 'issues', ic: '📌', t: 'ทะเบียนปัญหา', d: 'เคสผิดพลาดระหว่างแผนก · แผนกที่รับผิดชอบ · สถานะ', run: rIssues }
+  ]
+
+  // 📊 ผลนับสต๊อก
+  async function rCount() {
+    const d = await api('getCountResults', { from: ST.from, to: ST.to })
+    const rows = (d.rows || []).sort((a, b) => a.date.localeCompare(b.date) || (a.sku < b.sku ? -1 : 1))
+    if (!rows.length) throw new Error('ไม่มีผลนับที่ส่งในช่วงนี้')
+    return {
+      name: 'ผลนับสต๊อก', options: [['diff', 'เฉพาะรายการที่มีผลต่าง'], ['all', 'ทุกรายการ'], ['day', 'สรุปรายวัน (1 แถว / รอบนับ)']],
+      build: (m) => {
+        if (m === 'day') {
+          const days = Array.from(new Set(rows.map((r) => r.date)))
+          return common({ kicker: 'STOCK COUNT · SUMMARY', title: 'สรุปผลนับสต๊อกรายวัน', sub: 'สาขา' + BR().name + ' · วันที่นับจริง', meta: metaBase(),
+            cols: [{ h: 'วันที่นับ', w: '14%' }, { h: 'ส่งเวลา', cls: 'c', w: '9%' }, { h: 'ผู้ส่ง', w: '14%' }, { h: 'รหัสทั้งหมด', cls: 'n' }, { h: 'นับแล้ว', cls: 'n' }, { h: 'ตรง', cls: 'n' }, { h: 'ขาด', cls: 'n' }, { h: 'เกิน', cls: 'n' }, { h: 'ผลต่างสุทธิ', cls: 'n' }],
+            rows: days.map((k) => { const L = rows.filter((r) => r.date === k), c = L.filter((r) => r.counted != null), sh = c.filter((r) => r.diff < 0), ov = c.filter((r) => r.diff > 0)
+              return { hl: sh.length + ov.length > 0, cells: [dTH(k), L[0].time, L[0].by, L.length, c.length, c.filter((r) => r.diff === 0).length, sh.length, ov.length, sg(r3(c.reduce((a, r) => a + (r.diff || 0), 0)))] } }),
+            noteBox: 'หมายเหตุ:', sign: sign3 })
+        }
+        const list = m === 'all' ? rows : rows.filter((r) => r.diff != null && r.diff !== 0)
+        const out = []; let day = '', n = 0
+        list.forEach((r) => {
+          if (r.date !== day) { day = r.date; out.push({ sec: '📅 นับวันที่ ' + dTH(day) + ' · ส่ง ' + r.time + ' โดย ' + (r.by || '-') + ' · ' + list.filter((x) => x.date === day).length + ' รายการ' }) }
+          out.push({ hl: r.diff != null && r.diff !== 0, cells: [++n, r.sku, r.name, r.pack, r.sys == null ? '-' : fmt(r.sys), r.counted == null ? '—' : fmt(r.counted), r.diff == null ? '—' : sg(r.diff), r.reason || r.status] })
+        })
+        return common({ kicker: 'STOCK COUNT', title: m === 'all' ? 'ผลนับสต๊อก' : 'ผลนับสต๊อก — เฉพาะผลต่าง', sub: 'สาขา' + BR().name + ' · วันที่นับจริง ' + dTH(ST.from) + ' – ' + dTH(ST.to), meta: metaBase(),
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '6%' }, { h: 'รหัสสินค้า', cls: 'code', w: '11%' }, { h: 'ชื่อสินค้า' }, { h: 'หน่วย', w: '11%' }, { h: 'ในระบบ', cls: 'n', w: '8%' }, { h: 'นับจริง', cls: 'n', w: '8%' }, { h: 'ผลต่าง', cls: 'n', w: '8%' }, { h: 'สถานะ / เหตุผล', w: '20%' }],
+          rows: out, empty: 'ไม่มีผลต่าง', noteBox: 'หมายเหตุ:', sign: ['ผู้นับ', 'ผู้ตรวจสอบ', 'ผู้จัดการสาขา'] })
+      }
+    }
+  }
+  // วันที่นับในช่วง (ใช้กับรายงานที่ต้องเลือกรอบนับ)
+  async function countDays() {
+    const d = await api('getCountResults', { from: ST.from, to: ST.to })
+    const rows = d.rows || [], days = Array.from(new Set(rows.map((r) => r.date))).sort().reverse()
+    if (!days.length) throw new Error('ไม่มีผลนับที่ส่งในช่วงนี้ — เลือกช่วงวันที่ให้ครอบวันที่นับ')
+    return { rows: rows, days: days }
+  }
+  // 🔎 สรุปเหตุผลผลต่าง (เหมือนในแอปนับสต๊อก แต่ย้อนหลังได้ทุกรอบ)
+  async function rWhy() {
+    const C = await countDays()
+    await products()
+    const old = addD(C.days[C.days.length - 1], -45)
+    const [hist, sm, rc, rt] = await Promise.all([api('getCountResults', { from: old, to: ST.to }), api('getSapMoves', { from: old }), api('getEntriesRange', { app: 'receive', from: old, to: ST.to }), api('getReturns', { from: old })])
+    const allCnt = hist.rows || []
+    const cache = {}
+    const analyze = (day) => {
+      if (cache[day]) return cache[day]
+      const rows = C.rows.filter((r) => r.date === day && r.counted != null && r.diff != null && Math.abs(r.diff) > 0.0005)
+      const prevDays = Array.from(new Set(allCnt.map((r) => r.date))).filter((k) => k < day).sort()
+      const from = prevDays.length ? addD(prevDays[prevDays.length - 1], 1) : addD(day, -29)
+      const ag = {}, A = (c) => (ag[c] = ag[c] || { T: 0, GR: 0, GI: 0, CN: 0, DO: 0, R: 0, Ret: 0, bad: 0, pend: 0 })
+      const packOf = {}; C.rows.forEach((r) => { packOf[r.sku] = r.pack })
+      ;(sm.rows || []).forEach((x) => {
+        if (SAP5.indexOf(x.type) < 0 || x.date < from || x.date > day) return
+        const c = String(x.code).toUpperCase(), v = packsOf(packOf[c] || pk(c), x.uom, Math.abs(+x.qin || 0) + Math.abs(+x.qout || 0))
+        if (v == null) { A(c).bad++; return }
+        A(c)[x.type === 'Transfer' ? 'T' : x.type] += v
+      })
+      ;(rc.items || []).forEach((e) => { if (e.date >= from && e.date <= day) A(String(e.code).toUpperCase()).R += +e.qty || 0 })
+      ;(rt.items || []).forEach((e) => { if (e.date >= from && e.date <= day) { const a = A(String(e.code).toUpperCase()); a.Ret += +e.qty || 0; if (!e.sent) a.pend += +e.qty || 0 } })
+      const out = rows.map((r) => {
+        const a = ag[r.sku] || A(r.sku), TG = r3(a.T + a.GR), c1 = r3(a.R - TG), c2 = r3(a.GI - a.Ret), why = []
+        if (c1 < 0) why.push('รับเข้าน้อยกว่าโอน/GR ' + fmt(-c1) + ' (SAP ' + fmt(TG) + ' · แอปรับ ' + fmt(r3(a.R)) + ')')
+        if (c1 > 0) why.push('รับเข้าเกินโอน/GR ' + fmt(c1) + (TG === 0 ? ' — SAP ไม่มีโอนรหัสนี้ อาจรับผิดรหัส' : ''))
+        if (c2 < 0) why.push('ตีคืนแล้วคลังยังไม่ทำ GI ' + fmt(-c2) + (a.pend > 0 ? ' · ยังรอส่งคืนคลัง ' + fmt(r3(a.pend)) : ''))
+        if (c2 > 0) why.push('คลังทำ GI เกินที่ตีคืน ' + fmt(c2))
+        if (a.CN > 0) why.push('มี CN ยกเลิกบิล ของกลับเข้าสต๊อก ' + fmt(r3(a.CN)))
+        if (a.bad) why.push('แปลงหน่วย SAP ไม่ได้ ' + a.bad + ' แถว')
+        let exp = r3(c1 + c2)
+        if (exp !== 0 && Math.sign(exp) !== Math.sign(r.diff)) exp = 0
+        if (Math.abs(exp) > Math.abs(r.diff)) exp = r.diff
+        const rem = r3(r.diff - exp), st = exp !== 0 && Math.abs(rem) < 0.0005 ? 'ok' : exp !== 0 ? 'part' : 'unk'
+        const prev = allCnt.filter((p) => p.sku === r.sku && p.date < day && p.diff != null && Math.abs(p.diff) > 0.0005)
+        if (prev.length) why.unshift('🔁 มีผลต่างซ้ำ ' + prev.length + ' ครั้งก่อนหน้า')
+        if (st !== 'ok') why.push(st === 'part' ? 'เหลือที่ยังหาสาเหตุไม่ได้ ' + sg(rem) : 'ไม่พบข้อมูลที่อธิบายผลต่าง — ตรวจนับซ้ำ / ของเสีย / ขายไม่ตัดสต๊อก')
+        return { r: r, st: st, why: why, exp: exp, rem: rem }
+      })
+      out.sort((a, b) => ({ unk: 0, part: 1, ok: 2 }[a.st] - { unk: 0, part: 1, ok: 2 }[b.st]) || Math.abs(b.r.diff) - Math.abs(a.r.diff))
+      return (cache[day] = { from: from, out: out })
+    }
+    const TH = { ok: '✔ อธิบายได้ครบ', part: '◐ บางส่วน', unk: '❓ ไม่ทราบสาเหตุ' }
+    return {
+      name: 'สรุปเหตุผลผลต่าง', options: C.days.map((k) => [k, 'รอบนับ ' + dTH(k)]),
+      build: (day) => {
+        const Z = analyze(day), n = (s) => Z.out.filter((x) => x.st === s).length
+        return common({ kicker: 'STOCK COUNT · VARIANCE REASONS', title: 'สรุปเหตุผลผลต่าง', sub: 'สาขา' + BR().name + ' · รอบนับ ' + dTH(day) + ' · เทียบข้อมูล ' + dTH(Z.from) + ' – ' + dTH(day),
+          meta: [['สาขา', BR().name], ['วันที่นับ', dTH(day)], ['ผู้พิมพ์', SESSION.user], ['อธิบายได้ครบ', n('ok') + ' รหัส'], ['บางส่วน', n('part') + ' รหัส'], ['ไม่ทราบสาเหตุ', n('unk') + ' รหัส']],
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '5%' }, { h: 'รหัสสินค้า', cls: 'code', w: '10%' }, { h: 'ชื่อสินค้า', w: '19%' }, { h: 'ในระบบ', cls: 'n', w: '7%' }, { h: 'นับจริง', cls: 'n', w: '7%' }, { h: 'ผลต่าง', cls: 'n', w: '7%' }, { h: 'ผลวิเคราะห์', cls: 'c', w: '11%' }, { h: 'เหตุผลที่พบ' }],
+          rows: Z.out.map((x, i) => ({ hl: x.st === 'unk', cells: [i + 1, x.r.sku, x.r.name, fmt(x.r.sys), fmt(x.r.counted), sg(x.r.diff), TH[x.st], x.why.join(' · ')] })),
+          empty: 'รอบนี้ไม่มีผลต่าง', noteBox: 'หมายเหตุ / การดำเนินการ:', sign: ['ผู้นับ', 'ผู้ตรวจสอบ', 'ผู้จัดการสาขา'] })
+      }
+    }
+  }
+  // 🔧 ตรวจการปรับสต๊อก
+  async function rAdj() {
+    const C = await countDays()
+    await products()
+    const sm = await api('getSapMoves', { from: C.days[C.days.length - 1] })
+    const check = (day) => {
+      const to = addD(day, 14), cnt = {}
+      C.rows.filter((r) => r.date === day && r.counted != null && r.diff != null).forEach((r) => { cnt[r.sku] = r })
+      const adj = {}, unk = new Set()
+      ;(sm.rows || []).filter((x) => SAP5.indexOf(x.type) < 0 && x.date >= day && x.date <= to).forEach((x) => {
+        const v = packsOf((cnt[x.code] && cnt[x.code].pack) || pk(x.code), x.uom, (+x.qin || 0) - (+x.qout || 0))
+        const a = adj[x.code] || (adj[x.code] = { q: 0, docs: [] })
+        if (v == null) unk.add(x.code); else a.q = r3(a.q + v)
+        if (a.docs.indexOf(x.doc) < 0) a.docs.push(x.doc)
+      })
+      return { to: to, rows: Array.from(new Set(Object.keys(cnt).concat(Object.keys(adj)))).sort().map((c) => {
+        const r = cnt[c], a = adj[c], need = r ? r3(r.diff) : 0, got = a ? a.q : 0
+        if (!a && !need) return null
+        const st = unk.has(c) ? 'unk' : Math.abs(got - need) <= 0.05 ? 'ok' : !a ? 'none' : !r ? 'extra' : 'bad'
+        const txt = { unk: '? แปลงหน่วยไม่ได้', ok: '✔ ปรับตรง', none: '✖ ยังไม่ปรับ', extra: '＋ ปรับรหัสที่ไม่ได้นับ', bad: '✖ ปรับไม่ตรง ต่าง ' + sg(r3(got - need)) }[st]
+        return { c: c, name: r ? r.name : nm(c), pack: r ? r.pack : pk(c), sys: r ? r.sys : null, cnt: r ? r.counted : null, need: need, got: got, docs: a ? a.docs : [], st: st, txt: txt }
+      }).filter(Boolean) }
+    }
+    return {
+      name: 'ตรวจการปรับสต๊อก', options: C.days.reduce((o, k) => o.concat([[k + '|bad', 'รอบนับ ' + dTH(k) + ' · เฉพาะที่ไม่ตรง'], [k + '|all', 'รอบนับ ' + dTH(k) + ' · ทุกรายการ']]), []),
+      build: (v) => {
+        const [day, m] = v.split('|'), A = check(day), L = A.rows.filter((x) => m === 'all' || x.st !== 'ok')
+        return common({ kicker: 'STOCK ADJUSTMENT CHECK', title: 'ใบตรวจการปรับสต๊อกของคลัง', sub: 'สาขา' + BR().name + ' · ผลนับ ' + dTH(day) + ' เทียบเอกสารปรับยอด SAP ถึง ' + dTH(A.to),
+          meta: [['สาขา', BR().name], ['รอบนับ', dTH(day)], ['ผู้พิมพ์', SESSION.user], ['ปรับตรง', A.rows.filter((x) => x.st === 'ok').length + ' รหัส'], ['ไม่ตรง / ยังไม่ปรับ', A.rows.filter((x) => x.st === 'bad' || x.st === 'none').length + ' รหัส'], ['ปรับรหัสที่ไม่ได้นับ', A.rows.filter((x) => x.st === 'extra').length + ' รหัส']],
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '5%' }, { h: 'รหัสสินค้า', cls: 'code', w: '11%' }, { h: 'ชื่อสินค้า' }, { h: 'แพคไซส์', w: '10%' }, { h: 'ในระบบ', cls: 'n', w: '7%' }, { h: 'นับจริง', cls: 'n', w: '7%' }, { h: 'ควรปรับ', cls: 'n', w: '7%' }, { h: 'คลังปรับ', cls: 'n', w: '7%' }, { h: 'เอกสาร', w: '11%' }, { h: 'ผลตรวจ', w: '15%' }],
+          rows: L.map((x, i) => ({ hl: x.st !== 'ok', cells: [i + 1, x.c, x.name, x.pack, x.sys == null ? '-' : fmt(x.sys), x.cnt == null ? '-' : fmt(x.cnt), sg(x.need) || '0', sg(x.got) || '0', x.docs.join(', '), x.txt] })),
+          summary: 'ควรปรับ = นับจริง − ในระบบ · คลังปรับ = ยอดสุทธิของเอกสาร SAP ที่ไม่ใช่ ' + SAP5.join(' / ') + ' ภายใน 14 วันหลังวันนับ',
+          empty: 'ปรับตรงทุกรายการ', noteBox: 'หมายเหตุ:', sign: ['ผู้จัดทำ (สาขา)', 'คลังสินค้า (รับทราบ)', 'ผู้จัดการสาขา'] })
+      }
+    }
+  }
+  // 📥 ↩️ 🛒 รายการรับเข้า / ตีคืน / สั่งสินค้า
+  async function rEnt(app) {
+    const T = { receive: ['รับเข้า', 'GOODS RECEIVING', 'จำนวนรับ'], 'return': ['ตีคืน', 'RETURN TO WAREHOUSE', 'จำนวนตีคืน'], order: ['สั่งสินค้า', 'STORE ORDER', 'จำนวนสั่ง'] }[app]
+    const d = await api('getEntriesRange', { app: app, from: ST.from, to: ST.to })
+    const items = (d.items || []).sort((a, b) => a.date.localeCompare(b.date) || a.ts - b.ts)
+    if (!items.length) throw new Error('ไม่มีรายการ' + T[0] + 'ในช่วงนี้')
+    const RET = app === 'return'
+    return {
+      name: T[0], options: [['list', 'รายการทั้งหมด (แยกวัน)'], ['code', 'สรุปตามรหัส (ทั้งช่วง)']].concat(RET ? [['pend', 'เฉพาะที่ยังไม่ส่งคืนคลัง']] : []),
+      build: (m) => {
+        if (m === 'code') {
+          const g = {}
+          items.forEach((e) => { const x = g[e.code] || (g[e.code] = { code: e.code, name: e.name, pack: e.pack, q: 0, n: 0, d1: e.date, d2: e.date }); x.q = r3(x.q + e.qty); x.n++; if (e.date > x.d2) x.d2 = e.date })
+          const L = Object.keys(g).sort().map((k) => g[k])
+          return common({ kicker: T[1] + ' · SUMMARY', title: 'สรุป' + T[0] + 'ตามรหัส', sub: 'สาขา' + BR().name + ' · ' + dTH(ST.from) + ' – ' + dTH(ST.to), meta: metaBase(),
+            cols: [{ h: 'ลำดับ', cls: 'c', w: '6%' }, { h: 'รหัสสินค้า', cls: 'code', w: '12%' }, { h: 'ชื่อสินค้า' }, { h: 'หน่วย', w: '12%' }, { h: T[2], cls: 'n', w: '10%' }, { h: 'จำนวนครั้ง', cls: 'n', w: '9%' }, { h: 'ครั้งแรก', w: '12%' }, { h: 'ล่าสุด', w: '12%' }],
+            rows: L.map((x, i) => ({ cells: [i + 1, x.code, x.name, x.pack, fmt(x.q), x.n, dTH(x.d1), dTH(x.d2)] })),
+            foot: ['', '', 'รวม ' + L.length + ' รหัส', '', fmt(r3(L.reduce((a, x) => a + x.q, 0))), items.length, '', ''], noteBox: 'หมายเหตุ:', sign: sign3 })
+        }
+        const L = m === 'pend' ? items.filter((e) => !e.sent) : items
+        const out = []; let day = '', n = 0
+        L.forEach((e) => {
+          if (e.date !== day) { day = e.date; const c = L.filter((x) => x.date === day); out.push({ sec: '📅 ' + dTH(day) + ' · ' + c.length + ' รายการ · รวม ' + fmt(r3(c.reduce((a, x) => a + x.qty, 0))) }) }
+          out.push({ hl: RET && !e.sent, cells: [++n, e.time, e.code, e.name, e.pack, fmt(e.qty), e.user, RET ? (e.sent ? dTH(e.sent) : 'ยังไม่ส่ง') : e.note] })
+        })
+        return common({ kicker: T[1], title: m === 'pend' ? 'ของรอตีคืน (ยังไม่ส่งคืนคลัง)' : 'รายการ' + T[0], sub: 'สาขา' + BR().name + ' · ' + dTH(ST.from) + ' – ' + dTH(ST.to), meta: metaBase().concat([['จำนวน', L.length + ' รายการ']]),
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '6%' }, { h: 'เวลา', w: '7%' }, { h: 'รหัสสินค้า', cls: 'code', w: '11%' }, { h: 'ชื่อสินค้า' }, { h: 'หน่วย', w: '11%' }, { h: T[2], cls: 'n', w: '9%' }, { h: 'ผู้บันทึก', w: '11%' }, { h: RET ? 'ส่งคืนคลังเมื่อ' : 'หมายเหตุ', w: '14%' }],
+          rows: out, foot: ['', '', '', 'รวม ' + L.length + ' รายการ', '', fmt(r3(L.reduce((a, x) => a + x.qty, 0))), '', ''], empty: 'ไม่มีรายการ', noteBox: 'หมายเหตุ:', sign: sign3 })
+      }
+    }
+  }
+  // 🚚 ตรวจรับของโอนย้าย (รายวัน)
+  async function rTransfer() {
+    await products()
+    const [sm, rc] = await Promise.all([api('getSapMoves', { from: addD(ST.from, -1) }), api('getEntriesRange', { app: 'receive', from: ST.from, to: ST.to })])
+    const tr = (sm.rows || []).filter((x) => x.type === 'Transfer' && x.date <= ST.to)
+    const rec = rc.items || []
+    const days = Array.from(new Set(rec.map((e) => e.date).concat(tr.map((x) => x.date)).filter((k) => k >= ST.from && k <= ST.to))).sort()
+    const recon = (day) => {
+      let use = tr.filter((x) => x.date === day)
+      if (!use.length) use = tr.filter((x) => x.date === addD(day, -1)) // โอนตอนเที่ยงคืน ลงวันที่ก่อนหน้า
+      const m = {}
+      use.forEach((x) => { const c = m[x.code] || (m[x.code] = { code: x.code, p: 0, bad: false, docs: [] }); const v = packsOf(pk(x.code), x.uom, (+x.qin || 0) || (+x.qout || 0)); if (v == null) c.bad = true; else c.p = r3(c.p + v); if (c.docs.indexOf(x.doc) < 0) c.docs.push(x.doc) })
+      const got = {}
+      rec.filter((e) => e.date === day).forEach((e) => { got[e.code] = r3((got[e.code] || 0) + e.qty) })
+      Object.keys(got).forEach((c) => { if (!m[c]) m[c] = { code: c, p: null, only: true, docs: [] } })
+      return Object.keys(m).sort().map((c) => {
+        const x = m[c], r = got[c] || 0
+        const st = x.only ? 'warn' : !r ? 'bad' : x.bad ? 'warn' : Math.abs(r - x.p) <= 0.05 ? 'ok' : 'bad'
+        const txt = x.only ? '＋ รับแต่ไม่มีในใบโอน' : !r ? '✖ ไม่ได้บันทึกรับ' : x.bad ? '? แปลงหน่วยไม่ได้' : st === 'ok' ? '✔ ตรง' : r < x.p ? '▼ ขาด ' + fmt(r3(x.p - r)) : '▲ เกิน ' + fmt(r3(r - x.p))
+        return { code: c, p: x.p, r: r, docs: x.docs, st: st, txt: txt }
+      })
+    }
+    if (!days.length) throw new Error('ไม่มีใบโอนหรือรายการรับเข้าในช่วงนี้')
+    return {
+      name: 'ตรวจรับของโอนย้าย', options: [['bad', 'เฉพาะที่ไม่ตรง'], ['all', 'ทุกรายการ']],
+      build: (m) => {
+        const out = []; let n = 0, nb = 0
+        days.forEach((day) => {
+          const R = recon(day), L = R.filter((x) => m === 'all' || x.st !== 'ok'); nb += R.filter((x) => x.st !== 'ok').length
+          if (!L.length) return
+          out.push({ sec: '🚚 รับของวันที่ ' + dTH(day) + ' · ' + R.length + ' รหัส · ไม่ตรง ' + R.filter((x) => x.st !== 'ok').length })
+          L.forEach((x) => out.push({ hl: x.st !== 'ok', cells: [++n, x.code, nm(x.code), pk(x.code), x.p == null ? '-' : fmt(x.p), fmt(x.r), x.docs.join(', '), x.txt] }))
+        })
+        return common({ kicker: 'TRANSFER RECEIVING CHECK', title: 'ใบตรวจรับของโอนย้าย', sub: 'สาขา' + BR().name + ' · ' + dTH(ST.from) + ' – ' + dTH(ST.to), meta: metaBase().concat([['ไม่ตรงทั้งหมด', nb + ' รายการ']]),
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '6%' }, { h: 'รหัสสินค้า', cls: 'code', w: '11%' }, { h: 'ชื่อสินค้า' }, { h: 'แพคไซส์', w: '11%' }, { h: 'ใบโอน (แพค)', cls: 'n', w: '9%' }, { h: 'รับจริง', cls: 'n', w: '8%' }, { h: 'เลขที่ใบโอน', w: '12%' }, { h: 'ผลตรวจ', w: '14%' }],
+          rows: out, empty: 'รับตรงกับใบโอนทุกรายการ', noteBox: 'หมายเหตุ:', sign: ['ผู้รับของ (สาขา)', 'คลังสินค้า (รับทราบ)', 'ผู้จัดการสาขา'] })
+      }
+    }
+  }
+  // ⏳ ตีคืนที่คลังยังไม่ทำ GI
+  async function rGi() {
+    await products()
+    const [sm, rt] = await Promise.all([api('getSapMoves', { from: addD(ST.from, -3) }), api('getReturns', { from: addD(ST.from, -1) })])
+    const sap = sm.rows || [], gis = {}
+    sap.filter((x) => x.type === 'GI').sort((a, b) => a.date.localeCompare(b.date)).forEach((x) => { const v = packsOf(pk(x.code), x.uom, Math.abs(+x.qin || 0) + Math.abs(+x.qout || 0)); if (v != null) (gis[x.code] || (gis[x.code] = [])).push({ date: x.date, doc: x.doc, rem: v }) })
+    const rounds = {}
+    ;(rt.items || []).filter((r) => r.sent && r.sent >= ST.from && r.sent <= ST.to).forEach((r) => { const k = r.sent + '|' + r.code; rounds[k] = r3((rounds[k] || 0) + (+r.qty || 0)) })
+    const out = []
+    Object.keys(rounds).sort().forEach((k) => {
+      const [sent, code] = k.split('|'), need = rounds[k]; let got = 0; const docs = []
+      ;(gis[code] || []).forEach((g) => { if (need - got <= 0.4 || g.rem <= 0.001 || g.date < addD(sent, -3)) return; const t = Math.min(g.rem, need - got); g.rem = r3(g.rem - t); got = r3(got + t); if (docs.indexOf(g.doc) < 0) docs.push(g.doc) })
+      out.push({ sent: sent, code: code, need: need, got: got, left: r3(need - got), docs: docs, age: dayDiff(sent, today()) })
+    })
+    return {
+      name: 'ตีคืนที่คลังยังไม่ทำ GI', options: [['left', 'เฉพาะที่ยังค้าง GI'], ['all', 'ทุกรอบส่งคืน (รวมที่ GI ครบแล้ว)']],
+      build: (m) => {
+        const L = out.filter((x) => m === 'all' || x.left > 0.4)
+        return common({ kicker: 'GOODS ISSUE PENDING', title: m === 'all' ? 'ส่งคืนคลัง เทียบ GI' : 'ตีคืนที่คลังยังไม่ทำ GI', sub: 'สาขา' + BR().name + ' · ส่งคืนคลัง ' + dTH(ST.from) + ' – ' + dTH(ST.to), meta: metaBase().concat([['ค้างเกิน 14 วัน', L.filter((x) => x.left > 0.4 && x.age > 14).length + ' รายการ']]),
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '5%' }, { h: 'รหัสสินค้า', cls: 'code', w: '11%' }, { h: 'ชื่อสินค้า' }, { h: 'แพคไซส์', w: '10%' }, { h: 'ยังไม่ทำ GI ตั้งแต่', w: '12%' }, { h: 'ค้าง (วัน)', cls: 'n', w: '7%' }, { h: 'ตีคืน', cls: 'n', w: '7%' }, { h: 'GI แล้ว', cls: 'n', w: '7%' }, { h: 'ค้าง GI', cls: 'n', w: '7%' }, { h: 'เอกสาร GI / หมายเหตุ', w: '14%' }],
+          rows: L.map((x, i) => ({ hl: x.left > 0.4 && x.age > 14, cells: [i + 1, x.code, nm(x.code), pk(x.code), dTH(x.sent), x.left > 0.4 ? x.age : '-', fmt(x.need), fmt(x.got), fmt(x.left > 0.4 ? x.left : 0), x.left <= 0.4 ? '✔ GI ครบ ' + x.docs.join(', ') : x.got ? 'GI ไม่ครบ ' + x.docs.join(', ') : x.age > 14 ? 'เกินกำหนด แจ้งคลัง' : 'รอคลังทำ GI'] })),
+          foot: L.length ? ['', '', 'รวม ' + L.length + ' รายการ', '', '', '', fmt(r3(L.reduce((a, x) => a + x.need, 0))), fmt(r3(L.reduce((a, x) => a + x.got, 0))), fmt(r3(L.reduce((a, x) => a + Math.max(0, x.left), 0))), ''] : null,
+          summary: sap.length ? '' : '⚠️ ยังไม่มีข้อมูล SAP เคลื่อนไหวในช่วงนี้ — วางไฟล์ SAP ในแอปรับเข้า/ตีคืนก่อน',
+          empty: 'ไม่มีรายการค้าง GI', noteBox: 'หมายเหตุ:', sign: ['ผู้จัดทำ (สาขา)', 'คลังสินค้า (รับทราบ)', 'ผู้จัดการสาขา'] })
+      }
+    }
+  }
+  // 📋 ความเคลื่อนไหว SAP
+  async function rSap() {
+    const sm = await api('getSapMoves', { from: ST.from })
+    const rows = (sm.rows || []).filter((x) => x.date <= ST.to).sort((a, b) => a.date.localeCompare(b.date) || a.type.localeCompare(b.type) || String(a.doc).localeCompare(String(b.doc)))
+    if (!rows.length) throw new Error('ไม่มีข้อมูล SAP เคลื่อนไหวในช่วงนี้')
+    const types = Array.from(new Set(rows.map((x) => (SAP5.indexOf(x.type) >= 0 ? x.type : 'อื่น ๆ / ปรับยอด'))))
+    return {
+      name: 'ความเคลื่อนไหว SAP', options: [['all', 'ทุกประเภท']].concat(types.map((t) => [t, t])),
+      build: (m) => {
+        const L = rows.filter((x) => m === 'all' || (SAP5.indexOf(x.type) >= 0 ? x.type : 'อื่น ๆ / ปรับยอด') === m)
+        return common({ kicker: 'SAP MOVEMENTS', title: 'ความเคลื่อนไหวสินค้า SAP' + (m === 'all' ? '' : ' · ' + m), sub: 'สาขา' + BR().name + ' · ' + dTH(ST.from) + ' – ' + dTH(ST.to), meta: metaBase().concat([['จำนวน', L.length + ' แถว']]),
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '5%' }, { h: 'วันที่', w: '11%' }, { h: 'ประเภท', w: '10%' }, { h: 'เลขที่เอกสาร', w: '12%' }, { h: 'รหัสสินค้า', cls: 'code', w: '10%' }, { h: 'ชื่อสินค้า' }, { h: 'รับเข้า', cls: 'n', w: '7%' }, { h: 'ตัดออก', cls: 'n', w: '7%' }, { h: 'หน่วย SAP', w: '9%' }],
+          rows: L.map((x, i) => ({ cells: [i + 1, dTH(x.date), x.type, x.doc, x.code, x.name, x.qin ? fmt(x.qin) : '', x.qout ? fmt(x.qout) : '', x.uom] })), noteBox: 'หมายเหตุ:', sign: sign3 })
+      }
+    }
+  }
+  // 📅 ทะเบียนวันหมดอายุ
+  async function rExpiry() {
+    const d = await api('getEntriesRange', { app: 'expiry', from: '2000-01-01', to: '9999-12-31' })
+    const L0 = (d.items || []).filter((e) => e.qty > 0).sort((a, b) => String(a.exp || '9999').localeCompare(String(b.exp || '9999')))
+    return {
+      name: 'ทะเบียนวันหมดอายุ', options: [['soon', 'ใกล้หมด ≤7 วัน + หมดแล้ว'], ['gone', 'เฉพาะที่หมดอายุแล้ว'], ['all', 'ทั้งหมด']],
+      build: (m) => {
+        const L = L0.filter((e) => { const x = e.exp ? dayDiff(today(), e.exp) : null; return m === 'all' || (m === 'gone' ? x != null && x < 0 : x != null && x <= 7) })
+        return common({ kicker: 'EXPIRY REGISTER', title: 'ทะเบียนสินค้าวันหมดอายุ', sub: 'สาขา' + BR().name + ' · ข้อมูล ณ ' + dTH(today()), meta: [['สาขา', BR().name], ['ข้อมูล ณ', dTH(today())], ['ผู้พิมพ์', SESSION.user], ['จำนวน', L.length + ' ล็อต']],
+          cols: [{ h: 'ลำดับ', cls: 'c', w: '6%' }, { h: 'รหัสสินค้า', cls: 'code', w: '11%' }, { h: 'ชื่อสินค้า' }, { h: 'หน่วย', w: '11%' }, { h: 'จำนวน', cls: 'n', w: '8%' }, { h: 'วันหมดอายุ', w: '13%' }, { h: 'เหลือ (วัน)', cls: 'n', w: '9%' }, { h: 'บันทึกเมื่อ', w: '13%' }],
+          rows: L.map((e, i) => { const x = e.exp ? dayDiff(today(), e.exp) : null; return { hl: x != null && x <= 3, cells: [i + 1, e.code, e.name, e.pack, fmt(e.qty), dTH(e.exp), x == null ? '-' : x < 0 ? 'หมดแล้ว' : x, dTH(e.date)] } }),
+          empty: 'ไม่มีรายการ', noteBox: 'หมายเหตุ:', sign: sign3 })
+      }
+    }
+  }
+  // 📌 ทะเบียนปัญหา
+  async function rIssues() {
+    const d = await api('issueList', {})
+    const all = (d.items || []).sort((a, b) => String(a.openedAt).localeCompare(String(b.openedAt)))
+    return {
+      name: 'ทะเบียนปัญหา', options: [['open', 'เฉพาะเคสที่ยังไม่ปิด'], ['range', 'เคสที่เปิดในช่วงวันที่ที่เลือก'], ['dept', 'สรุปตามแผนก (เคสที่ยังไม่ปิด)']],
+      build: (m) => {
+        if (m === 'dept') {
+          const g = {}
+          all.filter((x) => x.status !== 'ปิดเคส').forEach((x) => { const k = x.dept || 'ยังไม่ทราบ'; const y = g[k] || (g[k] = { n: 0, st: {}, old: x.openedAt }); y.n++; y.st[x.status] = (y.st[x.status] || 0) + 1; if (x.openedAt < y.old) y.old = x.openedAt })
+          return common({ kicker: 'ISSUE LOG · BY DEPARTMENT', title: 'สรุปเคสค้างตามแผนก', sub: 'สาขา' + BR().name, meta: [['สาขา', BR().name], ['ข้อมูล ณ', dTH(today())], ['ผู้พิมพ์', SESSION.user]],
+            cols: [{ h: 'แผนกที่รับผิดชอบ', w: '24%' }, { h: 'เคสค้าง', cls: 'n', w: '10%' }, { h: 'แยกตามสถานะ' }, { h: 'เคสเก่าสุดเปิดเมื่อ', w: '20%' }],
+            rows: Object.keys(g).sort((a, b) => g[b].n - g[a].n).map((k) => ({ cells: [k, g[k].n, Object.keys(g[k].st).map((s) => s + ' ' + g[k].st[s]).join(' · '), g[k].old] })), empty: 'ไม่มีเคสค้าง', sign: sign3 })
+        }
+        const L = all.filter((x) => (m === 'open' ? x.status !== 'ปิดเคส' : String(x.openedAt).slice(0, 10) >= ST.from && String(x.openedAt).slice(0, 10) <= ST.to))
+        return common({ kicker: 'ISSUE LOG', title: 'ทะเบียนปัญหา / เคสผิดพลาดระหว่างแผนก', sub: 'สาขา' + BR().name + (m === 'open' ? ' · เคสที่ยังไม่ปิด' : ' · เปิดเคส ' + dTH(ST.from) + ' – ' + dTH(ST.to)), meta: [['สาขา', BR().name], ['จำนวน', L.length + ' เคส'], ['ผู้พิมพ์', SESSION.user]],
+          cols: [{ h: 'เลขที่เคส', cls: 'code', w: '10%' }, { h: 'เปิดเมื่อ', w: '11%' }, { h: 'ประเภท', w: '11%' }, { h: 'เอกสาร', w: '10%' }, { h: 'สินค้า / รายละเอียด' }, { h: 'ควรเป็น', cls: 'n', w: '6%' }, { h: 'จริง', cls: 'n', w: '6%' }, { h: 'แผนก', w: '9%' }, { h: 'สถานะ', w: '10%' }],
+          rows: L.map((x) => ({ hl: x.status === 'เปิด', cells: [x.id, x.openedAt, x.type, x.doc + (x.docDate ? ' · ' + dTH(x.docDate) : ''), x.code + ' ' + x.name + (x.detail ? ' — ' + x.detail : ''), fmt(x.expect), fmt(x.actual), x.dept, x.status] })),
+          empty: 'ไม่มีเคส', noteBox: 'หมายเหตุ:', sign: ['ผู้จัดทำ (สาขา)', 'ผู้รับทราบ (แผนกที่รับผิดชอบ)', 'ผู้จัดการสาขา'] })
+      }
+    }
+  }
+
+  /* =========================== หน้าจอ =========================== */
+  const PRESETS = [['วันนี้', () => [today(), today()]], ['เมื่อวาน', () => [addD(today(), -1), addD(today(), -1)]], ['7 วัน', () => [addD(today(), -6), today()]], ['30 วัน', () => [addD(today(), -29), today()]],
+    ['เดือนนี้', () => { const t = today(); return [t.slice(0, 8) + '01', t] }], ['เดือนก่อน', () => { const d = new Date(); d.setDate(0); const e = dk(d); return [e.slice(0, 8) + '01', e] }]]
+  function render() {
+    const app = $('#app')
+    if (!SESSION) {
+      app.innerHTML = '<div class="top"><a class="home" href="../homepage/" title="หน้าโฮม">🏠</a><div class="t"><b>📑 ศูนย์รายงาน</b><small>ดึงข้อมูลจากชีตกลาง · พิมพ์ / Excel</small></div></div>' +
+        '<div class="wrap"><div class="card login"><h2>🔑 เข้าสู่ระบบ</h2>' +
+        '<label class="f">สาขา</label><select id="l-br"><option value="">— เลือกสาขา —</option>' + CFG.BRANCHES.map((b) => '<option value="' + esc(b.id) + '">' + esc(b.name) + '</option>').join('') + '</select>' +
+        '<label class="f">ชื่อผู้ใช้</label><input id="l-user" type="text" placeholder="เช่น แผน" autocomplete="name">' +
+        '<label class="f">รหัสยืนยันสาขา (4 หลัก)</label><input id="l-pin" class="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off">' +
+        '<p id="l-err" class="err"></p><button type="button" class="btn" data-a="login">เข้าสู่ระบบ</button></div></div>'
+      const pin = $('#l-pin'); pin.addEventListener('input', () => { if (pin.value.length === 4) login() })
+      return
+    }
+    const g = {}; REPORTS.forEach((r) => { (g[r.grp] || (g[r.grp] = [])).push(r) })
+    app.innerHTML = '<div class="top"><a class="home" href="../homepage/" title="หน้าโฮม">🏠</a><div class="t"><b>📑 ศูนย์รายงาน · ' + esc(BR().name) + '</b><small>' + esc(SESSION.user) + ' · อ่านอย่างเดียว ไม่แก้ข้อมูล</small></div><button type="button" data-a="logout">ออก</button></div>' +
+      '<div class="wrap"><div class="card"><h2>📅 ช่วงวันที่</h2><div class="row2"><div><label class="f">ตั้งแต่</label><input type="date" id="f-from" value="' + ST.from + '"></div><div><label class="f">ถึง</label><input type="date" id="f-to" value="' + ST.to + '"></div></div>' +
+      '<div class="chips">' + PRESETS.map((p, i) => { const v = p[1](); return '<button type="button" class="chip' + (v[0] === ST.from && v[1] === ST.to ? ' on' : '') + '" data-p="' + i + '">' + p[0] + '</button>' }).join('') + '</div>' +
+      '<p class="hint" style="margin:10px 0 0">ผลนับใช้ <b>วันที่นับจริง</b> · ข้อมูลเก่ากว่า 120 วันดึงจากไฟล์ข้อมูลเก่าให้อัตโนมัติ (อาจช้าขึ้นเล็กน้อย)</p></div>' +
+      Object.keys(g).map((k) => '<div class="grp">' + esc(k) + '</div><div class="rpts">' + g[k].map((r) => '<button type="button" class="rpt" data-r="' + r.id + '"><span class="ic">' + r.ic + '</span><span><b>' + esc(r.t) + '</b><small>' + esc(r.d) + '</small></span></button>').join('') + '</div>').join('') +
+      '</div>'
+  }
+  function login() {
+    const id = $('#l-br').value, user = $('#l-user').value.trim(), pin = $('#l-pin').value
+    const b = CFG.BRANCHES.find((x) => x.id === id), err = $('#l-err')
+    if (!b) { err.textContent = 'เลือกสาขาก่อน'; return }
+    if (!user) { err.textContent = 'ใส่ชื่อผู้ใช้'; return }
+    if (String(b.pin) !== pin) { err.textContent = 'รหัสยืนยันไม่ถูกต้อง'; $('#l-pin').value = ''; return }
+    SESSION = { branchId: id, user: user, date: today() }; ls.set(K.session, SESSION); PROD = null; render()
+  }
+  async function runReport(id) {
+    const r = REPORTS.find((x) => x.id === id); if (!r) return
+    if (ST.from > ST.to) { toast('วันที่เริ่มต้องไม่เกินวันที่สิ้นสุด', 'err'); return }
+    busy(true)
+    try { const cfg = await r.run(); busy(false); window.PrintKit.open(cfg) } catch (e) { busy(false); toast(navigator.onLine === false ? 'ไม่มีอินเทอร์เน็ต' : e.message, 'err', 4000) }
+  }
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-a]'), p = e.target.closest('[data-p]'), r = e.target.closest('[data-r]')
+    if (a && a.dataset.a === 'login') login()
+    else if (a && a.dataset.a === 'logout') { SESSION = null; ls.set(K.session, null); render() }
+    else if (p) { const v = PRESETS[Number(p.dataset.p)][1](); ST.from = v[0]; ST.to = v[1]; ls.set(K.state, ST); render() }
+    else if (r) runReport(r.dataset.r)
+  })
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'f-from' || e.target.id === 'f-to') { ST.from = $('#f-from').value || ST.from; ST.to = $('#f-to').value || ST.to; ls.set(K.state, ST); render() }
+  })
+  if (window.__RP_TEST) window.__RP = { REPORTS: REPORTS, ST: ST, runReport: runReport, packsOf: packsOf }
+  render()
+})()
+</script>
+</body>
+</html>
